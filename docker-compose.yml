@@ -1,0 +1,17 @@
+services:
+  react-training-app:
+    build: .
+    ports:
+      - "9505:3000"
+    volumes:
+      - react-training-app-data:/app
+      - node-training-modules:/app/node_modules
+    environment:
+      - NODE_ENV=production
+    stdin_open: true
+    tty: true
+
+volumes:
+  react-training-app-data:
+  node-training-modules:
+
