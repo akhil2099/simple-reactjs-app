@@ -21,11 +21,9 @@ jobs:
         run: |
           sshpass -p "$SSH_PASSWORD" ssh -vvv -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" << 'EOF'
           cd /home/devops_trainee/test/simple-reactjs-app
-          mv docker-compose.yml docker-compose.old.yml
-          mv Dockerfile Dockerfile.old
+          git stash push -m "Stashing local Docker files" -- docker-compose.yml Dockerfile
           git pull origin master
-          mv docker-compose.old.yml docker-compose.yml
-          mv Dockerfile.old Dockerfile
+          git stash pop
           docker compose up --build -d
           EOF
 
