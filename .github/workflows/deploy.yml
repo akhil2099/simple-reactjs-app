@@ -1,0 +1,46 @@
+name: Deploy React App
+
+on:
+  push:
+    branches:
+      - main  # Change this if needed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Deploy to Server
+        env:
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          sshpass -p "$SSH_PASSWORD" ssh -T -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" << 'EOF'
+            set -e
+
+            cd /home/devops_trainee/test/simple-reactjs-app
+
+            # Stash existing docker-compose.yml and Dockerfile
+            mv docker-compose.yml docker-compose.old.yml
+            mv Dockerfile Dockerfile.old
+
+            # Pull latest changes
+            git pull origin main
+
+            # Restore original docker-compose.yml and Dockerfile
+            mv docker-compose.old.yml docker-compose.yml
+            mv Dockerfile.old Dockerfile
+
+            # Build without restarting
+            docker-compose up --build -d
+
+            echo "Deployment completed without restarting the app."
+          EOF
+
