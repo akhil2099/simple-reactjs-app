@@ -26,6 +26,6 @@ jobs:
           git pull origin master
           mv docker-compose.old.yml docker-compose.yml
           mv Dockerfile.old Dockerfile
-          docker-compose up --build -d
+          docker compose up --build -d
           EOF
 
