@@ -1,13 +1,6 @@
-name: Deploy React App
-
-on:
-  push:
-    branches:
-      - master
-
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  build_and_deploy:
+    runs-on: self-hosted  # Running on a self-hosted runner
 
     steps:
       - name: Checkout Repository
@@ -23,24 +16,12 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
           sshpass -p "$SSH_PASSWORD" ssh -vvv -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" << 'EOF'
-            set -e
-
-            cd /home/devops_trainee/test/simple-reactjs-app
-
-            # Stash existing docker-compose.yml and Dockerfile
-            mv docker-compose.yml docker-compose.old.yml
-            mv Dockerfile Dockerfile.old
-
-            # Pull latest changes
-            git pull origin master
-
-            # Restore original docker-compose.yml and Dockerfile
-            mv docker-compose.old.yml docker-compose.yml
-            mv Dockerfile.old Dockerfile
-
-            # Build without restarting
-            docker-compose up --build -d
-
-            echo "Deployment completed without restarting the app."
+          cd /home/devops_trainee/test/simple-reactjs-app
+          mv docker-compose.yml docker-compose.old.yml
+          mv Dockerfile Dockerfile.old
+          git pull origin master
+          mv docker-compose.old.yml docker-compose.yml
+          mv Dockerfile.old Dockerfile
+          docker-compose up --build -d
           EOF
 
